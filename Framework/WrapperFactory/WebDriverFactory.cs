@@ -1,8 +1,12 @@
-﻿using OpenQA.Selenium;
+﻿using System;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
 using System.Collections.Generic;
+using System.IO;
+using Microsoft.Extensions.Configuration;
+using TestProject.AppSettings;
 
 namespace TestProject.Framework.WrapperFactory
 {
@@ -10,6 +14,19 @@ namespace TestProject.Framework.WrapperFactory
     {
         private static readonly IDictionary<string, IWebDriver> Drivers = new Dictionary<string, IWebDriver>();
         private static readonly ChromeOptions chromeOptions = new ChromeOptions();
+        private static readonly AppSetting _appSetting;
+
+        static WebDriverFactory()
+        {
+            string currentDir = Directory.GetCurrentDirectory();
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile(Path.Combine(currentDir, "appSettings.json"), true, true)
+                .AddJsonFile($"appSettings.{env}.json", true, true)
+                .AddEnvironmentVariables();
+            var config = builder.Build();
+            _appSetting = config.Get<AppSetting>();
+        }
 
         public static IWebDriver Driver1 { get; set; }
 
@@ -22,7 +39,6 @@ namespace TestProject.Framework.WrapperFactory
         {
             chromeOptions.AddArgument("--window-size=1300,800");
             chromeOptions.AddExcludedArgument("enable-automation");
-            chromeOptions.AddAdditionalCapability("useAutomationExtension", false);
             switch (browserName)
             {
                 case "Firefox":
@@ -48,7 +64,7 @@ namespace TestProject.Framework.WrapperFactory
                     }
                     if (Driver1 == null)
                     {
-                        Driver1 = new ChromeDriver(ProjectConstant.sWebDriverPath, chromeOptions);
+                        Driver1 = new ChromeDriver(_appSetting.WebDrivers.ChromeDriver, chromeOptions);
                         Drivers.Add("Chrome1", Driver1);
                     }
                     break;
@@ -59,7 +75,7 @@ namespace TestProject.Framework.WrapperFactory
                     }
                     if (Driver2 == null)
                     {
-                        Driver2 = new ChromeDriver(ProjectConstant.sWebDriverPath, chromeOptions);
+                        Driver2 = new ChromeDriver(_appSetting.WebDrivers.ChromeDriver, chromeOptions);
                         Drivers.Add("Chrome2", Driver2);
                     }
                     break;
@@ -70,7 +86,7 @@ namespace TestProject.Framework.WrapperFactory
                     }
                     if (Driver3 == null)
                     {
-                        Driver3 = new ChromeDriver(ProjectConstant.sWebDriverPath, chromeOptions);
+                        Driver3 = new ChromeDriver(_appSetting.WebDrivers.ChromeDriver, chromeOptions);
                         Drivers.Add("Chrome3", Driver3);
                     }
                     break;

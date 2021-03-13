@@ -10,5 +10,6 @@ namespace TestProject.AppSettings
     public class AppSetting
     {
         public DatabaseOptions DbOptions { get; set; }
+        public WebDriverOptions WebDrivers { get; set; }
     }
 }
